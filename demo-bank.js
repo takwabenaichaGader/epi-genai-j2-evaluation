@@ -1,8 +1,8 @@
 /* PUBLIC : aperçu uniquement. Aucune question, réponse ou grille officielle. */
 window.EPI_DEMO_EXAM = {
-  "id": "EPI-GENAI-J2-2026-V2-30Q-DEMO",
+  "id": "EPI-GENAI-J2-2026-V3-INITIATION-30Q-DEMO",
   "title": "Aperçu de navigation — 30 questions non officielles",
-  "version": "2.0.0-demo",
+  "version": "3.0.0-demo",
   "durationMinutes": 60,
   "instructions": "Questions de démonstration indépendantes de l’épreuve officielle. Aucune note ni copie transmises.",
   "questions": [

@@ -1,9 +1,6 @@
-/* MODE APERÇU PAR DÉFAUT — aucune copie ni note officielle envoyée.
- * POUR L'ÉPREUVE : renseigner API_BASE puis définir DEMO_MODE:false.
- * Ne jamais mettre de token, mot de passe ou corrigé ici. */
+/* CONFIG PUBLIQUE V3 : aucune clé secrète ici. */
 window.EPI_CONFIG = {
   API_BASE: "https://epi-genai-j2-evaluation-api.epi-genai-takwa-2026.workers.dev",
   DEMO_MODE: false,
   TURNSTILE_SITEKEY: ""
 };
-

@@ -1,7 +1,7 @@
 'use strict';
 (() => {
 const $=id=>document.getElementById(id), config=window.EPI_CONFIG||{};
-const DEMO=Boolean(config.DEMO_MODE), STORAGE_KEY='epi-j2-session-v2-30q';
+const DEMO=Boolean(config.DEMO_MODE), STORAGE_KEY='epi-j2-session-v3-initiation-30q';
 let exam=null, token='', endAt=0, answers={}, current=0, student={}, timer=null, sending=false;
 const show=(id)=>$(id).classList.remove('hidden'),hide=id=>$(id).classList.add('hidden');
 const html=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
@@ -46,7 +46,7 @@ async function begin(event){event.preventDefault();clearAlert();const form=$('id
  try{
   if(DEMO){exam=window.EPI_DEMO_EXAM;token='';endAt=Date.now()+exam.durationMinutes*60000;}
   else{const turnstileToken=window.turnstile?.getResponse?.()||'';const data=await api('/start',{...person,turnstileToken});exam=data.exam;token=data.session;endAt=data.expiresAt;}
-  if(!exam||!Array.isArray(exam.questions)||exam.questions.length!==30)throw new Error('Banque de questions incompatible.');
+  if(!exam||exam.id!=='EPI-GENAI-J2-2026-V3-INITIATION-30Q'||exam.version!=='3.0.0'||!Array.isArray(exam.questions)||exam.questions.length!==30)throw new Error('La version du site et celle du serveur sont différentes. Contactez le formateur (V3 requise).');
   student=person;answers={};current=0;snapshot();$('student-name').textContent=`${student.firstName} ${student.lastName} · ${student.group}`;setScreen('exam-view');renderQuestion();startTimer();
  }catch(e){alertError(e.message||'Impossible de commencer.')}finally{btn.disabled=false;btn.innerHTML='Commencer l’évaluation <span>↗</span>';}
 }
@@ -56,7 +56,7 @@ async function submit(auto=false){if(sending)return;clearAlert();if(!DEMO&&!auto
  try{const r=await api('/submit',{session:token,answers});if(!r.receiptId||r.status!=='RECU')throw new Error('Accusé de réception absent.');clearInterval(timer);dropSnapshot();setScreen('result-view');$('result-title').textContent='Votre copie a été enregistrée.';$('result-description').textContent='L’archivage sur le serveur privé est confirmé. Conservez votre identifiant de reçu.';$('receipt-id').textContent=r.receiptId;$('receipt-time').textContent=new Date(r.receivedAt).toLocaleString('fr-FR');$('receipt-score').textContent=`${r.automaticScore} / ${r.automaticMaximum} (provisoire)`;$('receipt-manual').textContent=`En attente (${r.manualMaximum} pts)`;
  }catch(e){alertError((auto?'Temps écoulé. ':'')+(e.message||'Envoi impossible.'));if(auto){setScreen('review-view')} }finally{sending=false;btn.disabled=false;btn.textContent='Envoyer définitivement ma copie ↗';}
 }
-function restore(){if(DEMO)return false;try{const s=JSON.parse(sessionStorage.getItem(STORAGE_KEY)||'null');if(!s||!s.exam||!s.token||s.exam.id!=='EPI-GENAI-J2-2026-V2-30Q'||!Array.isArray(s.exam.questions))return false;({exam,token,endAt,answers,current,student}=s);if(!Number.isFinite(endAt))return false;current=Math.min(Math.max(0,current),exam.questions.length-1);$('student-name').textContent=`${student.firstName} ${student.lastName} · ${student.group}`;setScreen('exam-view');renderQuestion();startTimer();return true;}catch(_){return false;}}
+function restore(){if(DEMO)return false;try{const s=JSON.parse(sessionStorage.getItem(STORAGE_KEY)||'null');if(!s||!s.exam||!s.token||s.exam.id!=='EPI-GENAI-J2-2026-V3-INITIATION-30Q'||!Array.isArray(s.exam.questions))return false;({exam,token,endAt,answers,current,student}=s);if(!Number.isFinite(endAt))return false;current=Math.min(Math.max(0,current),exam.questions.length-1);$('student-name').textContent=`${student.firstName} ${student.lastName} · ${student.group}`;setScreen('exam-view');renderQuestion();startTimer();return true;}catch(_){return false;}}
 function setupTurnstile(){if(DEMO||!config.TURNSTILE_SITEKEY)return;show('turnstile-area');const script=document.createElement('script');script.src='https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';script.async=true;script.onload=()=>window.turnstile?.render('#turnstile-widget',{sitekey:config.TURNSTILE_SITEKEY});document.head.appendChild(script);}
 function initialize(){if(DEMO){$('mode-notice').textContent='MODE APERÇU — ce site fonctionne ici sans backend pour examiner le design et les questions. Aucun score ni copie ne sont enregistrés. Pour la session officielle, configurer l’API privée.';show('mode-notice');}
  else if(!config.API_BASE){$('mode-notice').textContent='ÉPREUVE NON CONFIGURÉE — le responsable pédagogique doit renseigner l’URL du Worker dans config.js.';show('mode-notice');$('start-btn').disabled=true;}
